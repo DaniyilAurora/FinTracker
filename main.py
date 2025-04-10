@@ -7,6 +7,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         
+        # Initialising window
         self.geometry(f'{st.WINDOW_WIDTH}x{st.WINDOW_HEIGHT}')
         self.title(st.WINDOW_TITLE)
         
