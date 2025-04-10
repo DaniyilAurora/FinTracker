@@ -1,13 +1,14 @@
 import tkinter as tk
 from mainFrame import MainFrame
 from loginFrame import LoginFrame
+import settings as st
 
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
         
-        self.geometry("400x400")
-        self.title("FinTracker")
+        self.geometry(f'{st.WINDOW_WIDTH}x{st.WINDOW_HEIGHT}')
+        self.title(st.WINDOW_TITLE)
         
         self.loginFrame = LoginFrame(self, self.showMainFrame)
         self.mainFrame = MainFrame(self)

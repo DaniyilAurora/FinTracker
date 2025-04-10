@@ -1,0 +1,4 @@
+# Window settings
+WINDOW_WIDTH = 720
+WINDOW_HEIGHT = 405
+WINDOW_TITLE = "FinTracker"
