@@ -18,7 +18,7 @@ class App(tk.Tk):
 
     def showMainFrame(self):
         self.loginFrame.forget()
-        self.mainFrame.pack()
+        self.mainFrame.pack(fill="both", expand=True)
 
 if __name__ == "__main__":
     app = App()
