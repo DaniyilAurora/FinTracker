@@ -1,6 +1,7 @@
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from transactionManager import TransactionManager
 
 class MainFrame(tk.Frame):
     def __init__(self, master):
@@ -10,25 +11,38 @@ class MainFrame(tk.Frame):
         label = tk.Label(self, text="Transactions", font=("Arial", 20, "bold"))
         label.pack()
 
-        self.canvas = tk.Canvas(self, background="#ffffff", borderwidth=0) # Create a canvas widget for displaying a frame with content
-        self.frame = tk.Frame(self.canvas, background="#ffffff") # Create a frame with the conent
-        self.vsb = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview) # Create a vertical scrollbar for the canvas
-        self.canvas.configure(yscrollcommand=self.vsb.set) # Link the scrollbar to the canvas so it controls the vertical view of the canvas
+        # Create a canvas widget for displaying a frame with content
+        self.canvas = tk.Canvas(self, background="#ffffff", borderwidth=0)
+        # Create a frame with the conent
+        self.frame = tk.Frame(self.canvas, background="#ffffff")
+        # Create a vertical scrollbar for the canvas
+        self.vsb = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        # Link the scrollbar to the canvas so it controls the vertical view of the canvas
+        self.canvas.configure(yscrollcommand=self.vsb.set)
+
         self.vsb.pack(side="right", fill="y")
         self.canvas.pack(side="left", fill="both", expand=True)
+
         # Create a window inside the canvas where the frame will be placed
         self.canvas_frame = self.canvas.create_window((0, 0), window=self.frame, anchor="nw")
 
+        # Bind the configuration of movement
         self.frame.bind("<Configure>", self.onFrameConfigure)
         self.canvas.bind("<Configure>", self.onCanvasConfigure)
-
         self.canvas.bind_all("<MouseWheel>", self.onMousewheel)
 
+        # Call to display data
         self.populate()
     
     def populate(self):
-        for row in range(100):
-            tk.Button(self.frame, text="%s" % row, width=100, borderwidth="1", relief="solid").grid(row=row, column=0)
+        self.transactionManager = TransactionManager()
+        # TEST DATA, TODO: Remove later
+        self.transactionManager.addTransaction("Abc", 645.54)
+        self.transactionManager.addTransaction("Def", 32.55)
+        self.transactionManager.addTransaction("Ghi", 12.14)
+        
+        for i, transaction in enumerate(self.transactionManager.getTransactions()):
+            tk.Button(self.frame, text=(f'Transaction {i} | Origin: {transaction.origin} | Amount: {transaction.amount}'), width=100, borderwidth="1", relief="solid").grid(row=i, column=0)
 
     def onFrameConfigure(self, event):
         # Update scrollregion after inserting widgets
