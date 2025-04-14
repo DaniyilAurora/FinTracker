@@ -1,5 +1,6 @@
 import tkinter as tk
 
+
 class LoginFrame(tk.Frame):
     def __init__(self, master, switchToMain):
         super().__init__(master)
