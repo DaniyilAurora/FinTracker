@@ -1,8 +1,8 @@
 import tkinter as tk
-
+from dataManager import DataManager
 
 class LoginFrame(tk.Frame):
-    def __init__(self, master, switchToMain):
+    def __init__(self, master, switchToMain, dm: DataManager):
         super().__init__(master)
         self.switchToMain = switchToMain
 

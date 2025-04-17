@@ -1,10 +1,11 @@
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from dataManager import DataManager
 
 
 class MainFrame(tk.Frame):
-    def __init__(self, master):
+    def __init__(self, master, dm: DataManager):
         super().__init__(master)
 
         # Main Frame
