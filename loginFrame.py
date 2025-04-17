@@ -25,4 +25,4 @@ class LoginFrame(tk.Frame):
         password = self.dm.getPassword(inputUsername)
         # login details check
         if inputPassword == password:
-            self.switchToMain()
+            self.switchToMain(inputUsername)

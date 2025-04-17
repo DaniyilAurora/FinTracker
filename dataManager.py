@@ -6,6 +6,9 @@ class DataManager():
         self.connection = sqlite3.connect("db.db")
         self.cursor = self.connection.cursor()
 
+        #self.cursor.execute("INSERT INTO transactions VALUES (5, '1', 'Friend', 10.00)")
+        #self.connection.commit()
+
         self.__initialiseDatabase()
 
     def __initialiseDatabase(self):
@@ -25,7 +28,8 @@ class DataManager():
             # Create transactions table
             self.cursor.execute("""
                 CREATE TABLE transactions(
-                    accID INTEGER PRIMARY KEY,
+                    transactionID INTEGER PRIMARY KEY,
+                    username VARCHAR(255),
                     origin TEXT,
                     amount REAL
                 );
@@ -56,5 +60,14 @@ class DataManager():
         result = self.cursor.fetchone()
         if result is None:
             return None
-        
+
         return str(result[0])
+
+    def getTransactions(self, username: str):
+        # Get transactions by username
+        self.cursor.execute("""
+            SELECT * FROM transactions
+            WHERE username=?;
+        """, (username,))
+        result = self.cursor.fetchall()
+        return result

@@ -5,8 +5,10 @@ from dataManager import DataManager
 
 
 class MainFrame(tk.Frame):
-    def __init__(self, master, dm: DataManager):
+    def __init__(self, master, dm: DataManager, username: str):
         super().__init__(master)
+
+        self.username = username
 
         # Main Frame
         mainFrame = tk.Frame(self, bg="white")
@@ -36,14 +38,21 @@ class MainFrame(tk.Frame):
         leftLabel.pack(padx=10, pady=15)
 
         # Create a transaction figure
-        xdata = [0, 2, 3, 4, 5]
-        ydata = [0, 4, 2, 3, 7]
+        xdata = []
+        ydata = []
+        transactions = dm.getTransactions(self.username)
+        balance = 0
+        for i, transaction in enumerate(transactions):
+            balance += transaction[3]
+            xdata.append(i + 1)
+            ydata.append(balance)
+
         fig = Figure(figsize=(5, 4), dpi=100)
         plot = fig.add_subplot(111)
         l = plot.fill_between(xdata, ydata)
         l.set_facecolors([[.5,.5,.8,.3]])
         plot.plot(xdata, ydata)  # Sample data
-        plot.set_xlabel("Days")
+        plot.set_xlabel("Transactions")
         plot.set_ylabel("Account Balance")
         plot.margins(x=0, y=0)
 
@@ -64,6 +73,8 @@ class MainFrame(tk.Frame):
         # Information Section (Bottom Panel)
         bottomLabel = tk.Label(informationFrame, text="Information", bg="#666666", font=("Arial", 14))
         bottomLabel.pack(padx=10, pady=10)
+        balanceLabel = tk.Label(informationFrame, text=f"Balance ${round(balance, 2)}", bg="#666666", font=("Arial", 14))
+        balanceLabel.pack(padx=10, pady=10)
         # Layout of canvas and scrollbar
         self.transactionCanvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -73,9 +84,8 @@ class MainFrame(tk.Frame):
         self.transactionCanvas.bind("<Leave>", lambda e: self.transactionCanvas.unbind_all("<MouseWheel>"))
 
         # TEST DATA, TODO: REMOVE LATER
-        for i in range(100):
-            tk.Label(scrollableFrame, text=f"Transaction {i+1}", bg="#888888", fg="white").pack(fill="x", padx=5, pady=2)
-
+        for i, transaction in enumerate(transactions):
+            tk.Label(scrollableFrame, text=f"Transaction for {transaction[2]} for {transaction[3]}", bg="#888888", fg="white").pack(fill="x", padx=5, pady=2)
 
     def onMousewheel(self, event):
         self.transactionCanvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
