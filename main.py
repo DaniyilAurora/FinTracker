@@ -4,6 +4,7 @@ from loginFrame import LoginFrame
 from dataManager import DataManager
 import settings as st
 
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()

@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class DataManager():
     def __init__(self):
         self.connection = sqlite3.connect("db.db")
@@ -33,6 +34,7 @@ class DataManager():
             self.connection.commit()
         else:
             print("Tables already exist")
+
     def __isFirstLaunch(self):
         # Check is table "passwords" exists
         self.cursor.execute("""
@@ -43,3 +45,16 @@ class DataManager():
         result = self.cursor.fetchone()
 
         return result is None
+
+    def getPassword(self, username: str):
+        # Get password by username
+        self.cursor.execute("""
+            SELECT password FROM passwords
+            WHERE username=?;
+        """, (username,))
+
+        result = self.cursor.fetchone()
+        if result is None:
+            return None
+        
+        return str(result[0])

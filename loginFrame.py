@@ -1,6 +1,7 @@
 import tkinter as tk
 from dataManager import DataManager
 
+
 class LoginFrame(tk.Frame):
     def __init__(self, master, switchToMain, dm: DataManager):
         super().__init__(master)
@@ -15,10 +16,13 @@ class LoginFrame(tk.Frame):
         self.password.pack()
         loginButton.pack()
 
-    def login(self):
-        username = self.username.get().strip()
-        password = self.password.get().strip()
+        self.dm = dm
 
-        # Basic login details check
-        if username == "1" and password == "1":
+    def login(self):
+        inputUsername = self.username.get().strip()
+        inputPassword = self.password.get().strip()
+
+        password = self.dm.getPassword(inputUsername)
+        # login details check
+        if inputPassword == password:
             self.switchToMain()
