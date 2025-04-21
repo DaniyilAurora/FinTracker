@@ -71,3 +71,15 @@ class DataManager():
         """, (username,))
         result = self.cursor.fetchall()
         return result
+
+    def addTransaction(self, username: str, type: str, amount: float):
+        # Add new transaction to the database
+        self.cursor.execute("""
+            INSERT INTO transactions 
+            (username, origin, amount) 
+            VALUES (?, ?, ?);
+        """, (username, type, amount))
+        self.connection.commit()
+        
+        # Means everything was successful
+        return True

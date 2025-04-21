@@ -10,6 +10,8 @@ class MainFrame(tk.Frame):
 
         self.username = username
 
+        self.dm = dm
+
         # Main Frame
         mainFrame = tk.Frame(self, bg="white")
         mainFrame.pack(fill=tk.BOTH, expand=True)
@@ -40,34 +42,34 @@ class MainFrame(tk.Frame):
         # Create a transaction figure
         xdata = []
         ydata = []
-        transactions = dm.getTransactions(self.username)
+        transactions = self.dm.getTransactions(self.username)
         balance = 0
         for i, transaction in enumerate(transactions):
             balance += transaction[3]
             xdata.append(i + 1)
             ydata.append(balance)
 
-        fig = Figure(figsize=(5, 4), dpi=100)
-        plot = fig.add_subplot(111)
-        l = plot.fill_between(xdata, ydata)
+        self.fig = Figure(figsize=(5, 4), dpi=100)
+        self.plot = self.fig.add_subplot(111)
+        l = self.plot.fill_between(xdata, ydata)
         l.set_facecolors([[.5,.5,.8,.3]])
-        plot.plot(xdata, ydata)  # Sample data
-        plot.set_xlabel("Transactions")
-        plot.set_ylabel("Account Balance")
-        plot.margins(x=0, y=0)
+        self.plot.plot(xdata, ydata)  # Sample data
+        self.plot.set_xlabel("Transactions")
+        self.plot.set_ylabel("Account Balance")
+        self.plot.margins(x=0, y=0)
 
         # Embed the figure in a canvas
-        canvas = FigureCanvasTkAgg(fig, master=self.analyticsFrame)
-        canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.analyticsFrame)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         # Transaction Section (Right Panel)
         self.transactionCanvas = tk.Canvas(transactionFrame, bg="#666666", highlightthickness=0)
         scrollbar = tk.Scrollbar(transactionFrame, orient="vertical", command=self.transactionCanvas.yview)
-        scrollableFrame = tk.Frame(self.transactionCanvas, bg="#666666")
+        self.scrollableFrame = tk.Frame(self.transactionCanvas, bg="#666666")
 
-        scrollableFrame.bind("<Configure>", lambda e: self.transactionCanvas.configure(scrollregion=self.transactionCanvas.bbox("all")))
-        self.transactionCanvas.create_window((0, 0), window=scrollableFrame, anchor="nw")
+        self.scrollableFrame.bind("<Configure>", lambda e: self.transactionCanvas.configure(scrollregion=self.transactionCanvas.bbox("all")))
+        self.transactionCanvas.create_window((0, 0), window=self.scrollableFrame, anchor="nw")
         self.transactionCanvas.configure(yscrollcommand=scrollbar.set)
 
         # Information Section (Bottom Panel)
@@ -75,6 +77,9 @@ class MainFrame(tk.Frame):
         bottomLabel.pack(padx=10, pady=10)
         balanceLabel = tk.Label(informationFrame, text=f"Balance ${round(balance, 2)}", bg="#666666", font=("Arial", 14))
         balanceLabel.pack(padx=10, pady=10)
+        inputButton = tk.Button(informationFrame, text="Input Window", command=self.createInputWindow)
+        inputButton.pack(padx=10, pady=10)
+
         # Layout of canvas and scrollbar
         self.transactionCanvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
@@ -83,9 +88,56 @@ class MainFrame(tk.Frame):
         self.transactionCanvas.bind("<Enter>", lambda e: self.transactionCanvas.bind_all("<MouseWheel>", self.onMousewheel))
         self.transactionCanvas.bind("<Leave>", lambda e: self.transactionCanvas.unbind_all("<MouseWheel>"))
 
-        # TEST DATA, TODO: REMOVE LATER
         for i, transaction in enumerate(transactions):
-            tk.Label(scrollableFrame, text=f"Transaction for {transaction[2]} for {transaction[3]}", bg="#888888", fg="white").pack(fill="x", padx=5, pady=2)
+            tk.Label(self.scrollableFrame, text=f"Transaction for {transaction[2]} for {transaction[3]}", bg="#888888", fg="white").pack(fill="x", padx=5, pady=2)
 
     def onMousewheel(self, event):
         self.transactionCanvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+    
+    def createInputWindow(self):
+        inputWindow = tk.Toplevel(self)
+        inputWindow.title = "Input Window"
+        inputWindow.geometry("400x300")
+        inputWindow.resizable(False, False)
+        
+        title = tk.Label(inputWindow, text="Input Window", font=("Arial", 14))
+        title.pack()
+
+        self.inputType = tk.Entry(inputWindow)
+        self.inputType.pack()
+        self.inputAmount = tk.Entry(inputWindow)
+        self.inputAmount.pack()
+        submitButton = tk.Button(inputWindow, text="Add", command=self.addNewTransaction)
+        submitButton.pack()
+
+    def addNewTransaction(self):
+        newTransaction = self.dm.addTransaction(self.username, self.inputType.get().strip(), float(self.inputAmount.get().strip()))
+
+        if newTransaction:
+            self.updateInformation(self.inputType.get().strip(), float(self.inputAmount.get().strip()))
+    
+    def updateInformation(self, type: str, amount: float):
+        # Update transaction list
+        tk.Label(self.scrollableFrame, text=f"Transaction for {type} for {amount}", bg="#888888", fg="white").pack(fill="x", padx=5, pady=2)
+
+        # Update graph
+        self.plot.clear()
+
+        # Get updated data
+        transactions = self.dm.getTransactions(self.username)
+        xdata = []
+        ydata = []
+        balance = 0
+        for i, transaction in enumerate(transactions):
+            balance += transaction[3]
+            xdata.append(i + 1)
+            ydata.append(balance)
+
+        # Plot again
+        self.plot.fill_between(xdata, ydata, facecolor=(.5, .5, .8, .3))
+        self.plot.plot(xdata, ydata)
+        self.plot.set_xlabel("Transactions")
+        self.plot.set_ylabel("Account Balance")
+        self.plot.margins(x=0, y=0)
+
+        self.canvas.draw()
